@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/protocol" },
+    { "path": "packages/core" },
+    { "path": "packages/audio-web" },
+    { "path": "packages/provider-deepgram" },
+    { "path": "packages/broker" }
+  ]
+}
