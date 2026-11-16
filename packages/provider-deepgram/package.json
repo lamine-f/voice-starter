@@ -1,0 +1,27 @@
+{
+  "name": "@voice-starter/provider-deepgram",
+  "version": "0.1.0",
+  "description": "Adaptateur Deepgram Voice Agent : connexion navigateur et réglages serveur.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./client": {
+      "source": "./src/client.ts",
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js"
+    },
+    "./server": {
+      "source": "./src/server.ts",
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@voice-starter/core": "workspace:*",
+    "@voice-starter/protocol": "workspace:*",
+    "@voice-starter/broker": "workspace:*"
+  }
+}
