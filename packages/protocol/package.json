@@ -1,0 +1,17 @@
+{
+  "name": "@voice-starter/protocol",
+  "version": "0.1.0",
+  "description": "Contrats partagés : messages du protocole, session, outils.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ]
+}
