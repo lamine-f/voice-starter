@@ -9,13 +9,13 @@ JARVIS Local est le premier client de ce starter.
 
 ## Paquets
 
-| Paquet | Où il tourne | Rôle |
-|---|---|---|
-| `@voice-starter/protocol` | partout | Commandes, événements, états, déclarations d'outils, `SessionGrant` |
-| `@voice-starter/core` | client | La session : machine à états, reconnexion, historique, routage des outils, injections |
-| `@voice-starter/audio-web` | navigateur | Micro → PCM16 (AudioWorklet) et lecture enchaînée |
-| `@voice-starter/provider-deepgram` | `/client` : navigateur · `/server` : serveur | Adaptateur Deepgram Voice Agent, réglages de session et jetons temporaires |
-| `@voice-starter/broker` | `.` : serveur · `/client` : navigateur | Registre d'outils (Zod), relais, routes Hono, client HTTP |
+| Paquet                             | Où il tourne                                 | Rôle                                                                                  |
+| ---------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `@voice-starter/protocol`          | partout                                      | Commandes, événements, états, déclarations d'outils, `SessionGrant`                   |
+| `@voice-starter/core`              | client                                       | La session : machine à états, reconnexion, historique, routage des outils, injections |
+| `@voice-starter/audio-web`         | navigateur                                   | Micro → PCM16 (AudioWorklet) et lecture enchaînée                                     |
+| `@voice-starter/provider-deepgram` | `/client` : navigateur · `/server` : serveur | Adaptateur Deepgram Voice Agent, réglages de session et jetons temporaires            |
+| `@voice-starter/broker`            | `.` : serveur · `/client` : navigateur       | Registre d'outils (Zod), relais, routes Hono, client HTTP                             |
 
 ## Principe
 
@@ -30,24 +30,28 @@ Interface ──commandes──▶ Cœur ──▶ AudioInput / AudioOutput
   page, à travers une iframe (`postMessage`), un IPC ou une WebSocket. Aux
   frontières, `toWire` / `fromWire` ajoutent et vérifient la version.
 - Chaque outil est déclaré **une fois**, avec son schéma Zod et l'endroit où
-  il s'exécute (`client` : l'hôte, `server` : le relais).
+  il s'exécute (`client` : l'hôte, `server` : le relais). Utiliser le `z`
+  exporté par `@voice-starter/broker`, celui qui produit les JSON Schema.
 
 ## Exemple
 
 **Serveur** (Node, Hono) :
 
 ```ts
-import { brokerRoutes, createBroker, implement, tool } from "@voice-starter/broker";
+import { brokerRoutes, createBroker, implement, tool, z } from "@voice-starter/broker";
 import { deepgramBackend, deepgramConfigFromEnv } from "@voice-starter/provider-deepgram/server";
 import { Hono } from "hono";
-import { z } from "zod";
 
 const showCard = tool({
-  name: "show_card", description: "Affiche une carte.", runsOn: "client",
+  name: "show_card",
+  description: "Affiche une carte.",
+  runsOn: "client",
   parameters: z.object({ title: z.string(), content: z.string() }),
 });
 const getWeather = tool({
-  name: "get_weather", description: "Météo d'une ville.", runsOn: "server",
+  name: "get_weather",
+  description: "Météo d'une ville.",
+  runsOn: "server",
   parameters: z.object({ city: z.string() }),
 });
 

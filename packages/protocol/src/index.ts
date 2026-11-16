@@ -87,7 +87,7 @@ export type VoiceEvent =
   | { type: "level"; source: "input" | "output"; value: number }
   /** Run this client tool, then answer with a `toolResult` command. */
   | { type: "toolCall"; callId: string; name: string; args: unknown }
-  /** The agent abandoned the call: do not answer it, undo what it started. */
+  /** The agent abandoned the call: do not answer it, undo what it started (its `toolActivity` still comes). */
   | { type: "toolCancelled"; callId: string }
   /** Progress of any tool, client or server. `result` comes with `done` and `error`. */
   | {

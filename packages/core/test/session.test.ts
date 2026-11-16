@@ -307,6 +307,15 @@ describe("tools", () => {
     expect(t.of("toolCancelled")).toEqual([{ type: "toolCancelled", callId: "c5" }]);
   });
 
+  it("still reports a cancelled server call, so the host can undo what it started", async () => {
+    const t = await online();
+    t.link().events.toolCall(call("c7", "lookup"));
+    t.link().events.toolCancelled("c7");
+    await settle();
+    expect(t.of("toolActivity").at(-1)).toMatchObject({ callId: "c7", status: "done" });
+    expect(t.link().conn.results).toHaveLength(0);
+  });
+
   it("drops a result whose link was replaced in the meantime", async () => {
     const t = await online();
     t.link().events.toolCall(call("c6", "lookup"));

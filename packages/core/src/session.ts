@@ -325,11 +325,11 @@ class Session implements VoiceSession {
       status = "error";
       result = { ok: false, error: messageOf(err) };
     }
-    // The agent drops answers to calls it cancelled.
-    if (this.#cancelled.has(callId)) return;
+    // Reported even for a cancelled call: the host may have to undo what it started.
     this.#emit({ type: "toolActivity", callId, name, status, result });
-    // Answer on the link that asked: a newer link knows nothing of this call.
-    if (link === this.#link) link.conn?.sendToolResult(call, result);
+    // The agent drops answers to calls it cancelled; a newer link knows nothing of this call.
+    if (this.#cancelled.has(callId) || link !== this.#link) return;
+    link.conn?.sendToolResult(call, result);
   }
 
   #askHost(callId: string, name: string, args: unknown): Promise<unknown> {
