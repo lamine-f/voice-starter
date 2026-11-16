@@ -31,6 +31,6 @@
     "directory": "packages/broker"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   }
 }

@@ -97,20 +97,11 @@ Si le relais déclare un outil client que l'hôte n'a pas listé dans
 
 ## Installer dans un autre projet
 
-Les paquets sont publiés sur GitHub Packages, dont le registre demande un
-jeton même pour lire (droit `read:packages`). Le `.npmrc` du projet, versionné,
-ne dit que le registre :
+Les paquets sont publics sur npm :
 
 ```
-@lamine-f:registry=https://npm.pkg.github.com
+pnpm add @lamine-f/voice-core @lamine-f/voice-audio-web @lamine-f/voice-broker @lamine-f/voice-provider-deepgram
 ```
-
-Le jeton n'y figure jamais : pnpm refuse un identifiant venu d'un fichier
-versionné. Il va dans la configuration de l'utilisateur, en local
-(`pnpm config set "//npm.pkg.github.com/:_authToken" <jeton>`) comme chez
-l'hébergeur (sur Vercel, la variable `NPM_RC` reçoit ces deux lignes).
-Ensuite : `pnpm add @lamine-f/voice-core @lamine-f/voice-audio-web
-@lamine-f/voice-broker @lamine-f/voice-provider-deepgram`.
 
 Le relais ne tient aucune connexion ouverte : le navigateur parle directement
 au fournisseur avec un jeton temporaire, le serveur ne répond qu'à deux appels
@@ -120,11 +111,9 @@ Cloudflare) : `brokerRoutes(...).fetch` se branche dans un route handler.
 
 ## Publier
 
-Avec un jeton qui a le droit `write:packages` (`gh auth refresh -s
-write:packages`), enregistré comme ci-dessus
-(`pnpm config set "//npm.pkg.github.com/:_authToken" "$(gh auth token)"`) :
-`pnpm build`, puis `pnpm -r publish`. pnpm remplace les dépendances
-`workspace:*` par leur version.
+Connecté au compte npm `lamine-f` (`npm login`), après avoir monté les
+versions : `pnpm build`, puis `pnpm -r publish`. pnpm remplace les
+dépendances `workspace:*` par leur version.
 
 ## Développement
 
