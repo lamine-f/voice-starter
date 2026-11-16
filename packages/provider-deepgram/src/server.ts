@@ -104,7 +104,7 @@ export async function grantToken(
   if (!config.apiKey) {
     throw new BrokerError(
       500,
-      "DEEPGRAM_API_KEY manquant : copie .env.example vers .env et mets ta clé Deepgram.",
+      "DEEPGRAM_API_KEY manquant : la clé Deepgram du serveur n'est pas configurée.",
     );
   }
   let res: Response;

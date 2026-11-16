@@ -4,8 +4,11 @@
  * - Commands and events: what a host and the voice core say to each other.
  *   They are plain JSON, so the same messages work in-page, across an iframe
  *   (postMessage), an IPC bridge or a WebSocket.
- * - Session grant and tool declarations: what the relay server hands the core.
+ * - Session grant and tool declarations: what the relay server hands the core,
+ *   their parameters in a JSON Schema subset the core checks (schema.ts).
  */
+
+export { checkArgs, SCHEMA_KEYWORDS } from "./schema.ts";
 
 /** Bumped on any incompatible change to the messages below. */
 export const PROTOCOL_VERSION = 1;

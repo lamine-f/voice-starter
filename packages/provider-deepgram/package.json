@@ -1,6 +1,6 @@
 {
   "name": "@lamine-f/voice-provider-deepgram",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Adaptateur Deepgram Voice Agent : connexion navigateur et réglages serveur.",
   "license": "MIT",
   "type": "module",

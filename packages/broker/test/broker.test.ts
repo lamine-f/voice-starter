@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import { readFileSync } from "node:fs";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { z } from "zod";
 import { httpBroker } from "../src/client.ts";
 import {
@@ -8,6 +9,8 @@ import {
   declaration,
   implement,
   type ProviderBackend,
+  parseArgs,
+  type ToolResult,
   tool,
 } from "../src/index.ts";
 
@@ -41,6 +44,54 @@ const broker = createBroker<{ user: string }>({
   provider,
   prompt: "Tu es un assistant.",
   tools: [display, implement(add, ({ a, b }, ctx) => ({ sum: a + b, by: ctx.user }))],
+});
+
+describe("tool registry", () => {
+  it("checks the agent's arguments the same way for server and client tools", () => {
+    expect(parseArgs(display, { title: "Ventes", kind: "info" })).toEqual({
+      success: true,
+      data: { title: "Ventes", kind: "info" },
+    });
+    const refused = parseArgs(display, { kind: "nope" });
+    expect(refused.success).toBe(false);
+    expect(!refused.success && refused.error).toMatch(/^arguments invalides pour display_card : /);
+  });
+
+  it("refuses at declaration what the core could not check", () => {
+    const dated = tool({
+      name: "since",
+      description: "d",
+      runsOn: "client",
+      parameters: z.object({ day: z.iso.date(), tags: z.array(z.string()).refine(() => true) }),
+    });
+    expect(() => declaration(dated)).not.toThrow();
+    const tuple = tool({
+      name: "pair",
+      description: "d",
+      runsOn: "client",
+      parameters: z.object({ pair: z.tuple([z.string(), z.number()]) }),
+    });
+    expect(() => declaration(tuple)).toThrow(
+      /mot-clé JSON Schema non pris en charge dans parameters\.pair : prefixItems/,
+    );
+  });
+
+  it("keeps what a server tool returns, for the host's page", () => {
+    const sales = implement(add, async ({ a, b }) => ({ total: a + b, currency: "XOF" as const }));
+    expectTypeOf<ToolResult<typeof sales>>().toEqualTypeOf<{ total: number; currency: "XOF" }>();
+  });
+
+  it("is importable in a browser without the relay: its entry needs only Zod", () => {
+    for (const file of ["tools-entry.ts", "tools.ts"]) {
+      const source = readFileSync(new URL(`../src/${file}`, import.meta.url), "utf8");
+      const imports = [...source.matchAll(/^(?:import|export)[^"]*from "([^"]+)"/gm)].map(
+        (m) => m[1] ?? "",
+      );
+      expect(imports.length).toBeGreaterThan(0);
+      for (const i of imports)
+        expect(["zod", "@lamine-f/voice-protocol", "./tools.ts"]).toContain(i);
+    }
+  });
 });
 
 describe("declarations", () => {
@@ -129,6 +180,23 @@ describe("routes", () => {
     expect((await invalid.json()).error).toMatch(/arguments invalides pour add/);
     const notJson = await app.request("/tools/add", { method: "POST", body: "{oops" });
     expect(notJson.status).toBe(400);
+  });
+
+  it("keep an internal failure's message on the server", async () => {
+    const failing = createBroker({
+      provider: {
+        ...provider,
+        grantToken: async () => Promise.reject(new Error("pg: mot de passe refusé")),
+      },
+      prompt: "p",
+      tools: [],
+    });
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    const res = await brokerRoutes(failing).request("/session", { method: "POST" });
+    expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ error: "erreur interne du relais" });
+    expect(String(log.mock.calls[0]?.[1])).toContain("pg: mot de passe refusé");
+    log.mockRestore();
   });
 
   it("refuse sessions and tools alike when authorize throws", async () => {

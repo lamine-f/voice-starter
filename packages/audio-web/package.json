@@ -1,6 +1,6 @@
 {
   "name": "@lamine-f/voice-audio-web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Entrée et sortie audio PCM16 pour le navigateur (Web Audio).",
   "license": "MIT",
   "type": "module",

@@ -7,14 +7,15 @@
  * queue of injected messages. A host drives it with commands and listens to
  * its events (see @lamine-f/voice-protocol).
  */
-import type {
-  Command,
-  ErrorCode,
-  HistoryItem,
-  SessionGrant,
-  SessionState,
-  ToolDeclaration,
-  VoiceEvent,
+import {
+  type Command,
+  checkArgs,
+  type ErrorCode,
+  type HistoryItem,
+  type SessionGrant,
+  type SessionState,
+  type ToolDeclaration,
+  type VoiceEvent,
 } from "@lamine-f/voice-protocol";
 import type {
   AudioInput,
@@ -323,6 +324,10 @@ class Session implements VoiceSession {
       const tool = this.#tools.get(name);
       if (!tool) throw new Error(`outil inconnu : ${name}`);
       if (args === undefined) throw new Error(`arguments illisibles pour ${name}`);
+      // The relay checks a server tool's arguments; a client tool's are checked
+      // here, so every host receives arguments that match its declaration.
+      const problem = tool.runsOn === "client" ? checkArgs(tool.parameters, args) : null;
+      if (problem) throw new Error(`arguments invalides pour ${name} : ${problem}`);
       result =
         tool.runsOn === "server"
           ? await this.#ports.broker.callTool(name, args)

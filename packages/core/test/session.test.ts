@@ -21,7 +21,12 @@ const GRANT: SessionGrant = {
   settings: { any: "thing" },
   audio: { inputRate: 16000, outputRate: 24000 },
   tools: [
-    { name: "show", description: "", parameters: {}, runsOn: "client" },
+    {
+      name: "show",
+      description: "",
+      parameters: { type: "object", properties: { title: { type: "string" } } },
+      runsOn: "client",
+    },
     { name: "lookup", description: "", parameters: {}, runsOn: "server" },
   ],
 };
@@ -295,6 +300,16 @@ describe("tools", () => {
     expect(results[0]).toEqual({ ok: false, error: "outil inconnu : nope" });
     expect(results[1]).toMatchObject({ ok: false });
     expect(t.of("toolActivity").filter((e) => e.status === "error")).toHaveLength(2);
+  });
+
+  it("checks a client tool's arguments before the host sees the call", async () => {
+    const t = await online();
+    t.link().events.toolCall(call("c8", "show", { title: 3 }));
+    await settle();
+    expect(t.of("toolCall")).toHaveLength(0);
+    expect(t.link().conn.results.map((r) => r.result)).toEqual([
+      { ok: false, error: "arguments invalides pour show : title : texte attendu" },
+    ]);
   });
 
   it("never answers a call the agent cancelled", async () => {

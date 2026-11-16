@@ -6,8 +6,8 @@
  * arguments.
  */
 import type { SessionGrant, ToolDeclaration } from "@lamine-f/voice-protocol";
-import { z } from "zod";
-import { declaration, isServerTool, type ServerTool, type ToolSpec } from "./tools.ts";
+import type { z } from "zod";
+import { declaration, isServerTool, parseArgs, type ServerTool, type ToolSpec } from "./tools.ts";
 
 /** An error with the HTTP status the routes answer with. */
 export class BrokerError extends Error {
@@ -71,13 +71,8 @@ export function createBroker<Ctx = void>(options: BrokerOptions<Ctx>): Broker<Ct
       const t = byName.get(name);
       if (!t) throw new BrokerError(404, `outil inconnu : ${name}`);
       if (!isServerTool(t)) throw new BrokerError(400, `${name} s'exécute côté client`);
-      const parsed = t.parameters.safeParse(args);
-      if (!parsed.success) {
-        throw new BrokerError(
-          400,
-          `arguments invalides pour ${name} : ${z.prettifyError(parsed.error)}`,
-        );
-      }
+      const parsed = parseArgs(t, args);
+      if (!parsed.success) throw new BrokerError(400, parsed.error);
       return t.run(parsed.data, ctx);
     },
   };

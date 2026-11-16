@@ -9,13 +9,13 @@ JARVIS Local est le premier client de ce starter.
 
 ## Paquets
 
-| Paquet                              | Où il tourne                                 | Rôle                                                                                  |
-| ----------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `@lamine-f/voice-protocol`          | partout                                      | Commandes, événements, états, déclarations d'outils, `SessionGrant`                   |
-| `@lamine-f/voice-core`              | client                                       | La session : machine à états, reconnexion, historique, routage des outils, injections |
-| `@lamine-f/voice-audio-web`         | navigateur                                   | Micro → PCM16 (AudioWorklet) et lecture enchaînée                                     |
-| `@lamine-f/voice-provider-deepgram` | `/client` : navigateur · `/server` : serveur | Adaptateur Deepgram Voice Agent, réglages de session et jetons temporaires            |
-| `@lamine-f/voice-broker`            | `.` : serveur · `/client` : navigateur       | Registre d'outils (Zod), relais, routes Hono, client HTTP                             |
+| Paquet                              | Où il tourne                                  | Rôle                                                                                  |
+| ----------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `@lamine-f/voice-protocol`          | partout                                       | Commandes, événements, états, déclarations d'outils, `SessionGrant`                   |
+| `@lamine-f/voice-core`              | client                                        | La session : machine à états, reconnexion, historique, routage des outils, injections |
+| `@lamine-f/voice-audio-web`         | navigateur                                    | Micro → PCM16 (AudioWorklet) et lecture enchaînée                                     |
+| `@lamine-f/voice-provider-deepgram` | `/client` : navigateur · `/server` : serveur  | Adaptateur Deepgram Voice Agent, réglages de session et jetons temporaires            |
+| `@lamine-f/voice-broker`            | `.` : serveur · `/client`, `/tools` : partout | Registre d'outils (Zod), relais, routes Hono, client HTTP                             |
 
 ## Principe
 
@@ -32,6 +32,19 @@ Interface ──commandes──▶ Cœur ──▶ AudioInput / AudioOutput
 - Chaque outil est déclaré **une fois**, avec son schéma Zod et l'endroit où
   il s'exécute (`client` : l'hôte, `server` : le relais). Utiliser le `z`
   exporté par `@lamine-f/voice-broker`, celui qui produit les JSON Schema.
+  `@lamine-f/voice-broker/tools` donne les déclarations sans le relais (ni
+  Hono ni code serveur), pour un fichier partagé avec la page.
+- Les arguments envoyés par l'agent sont vérifiés avant tout gestionnaire :
+  par le relais pour un outil serveur, par le cœur pour un outil client,
+  contre le JSON Schema publié et sans bibliothèque dans la page. Les
+  schémas s'écrivent donc dans le sous-ensemble que le cœur vérifie
+  (`SCHEMA_KEYWORDS` du protocole) : le relais refuse le reste dès la
+  déclaration, unions comprises.
+- `ToolResult<typeof outil>` donne le type de ce que renvoie un outil
+  serveur : la page le reçoit dans l'événement `toolActivity`.
+- Une erreur interne d'un outil (base, service) ne sort pas du relais : le
+  client reçoit « erreur interne du relais », le détail va dans la console du
+  serveur. Seule une `BrokerError` porte son message jusqu'à l'agent.
 
 ## Exemple
 

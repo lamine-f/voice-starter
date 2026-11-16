@@ -26,9 +26,15 @@ export function brokerRoutes<Ctx = void>(
 ): Hono {
   const app = new Hono();
 
+  // A BrokerError is meant for the client. Anything else is an internal
+  // failure (database, service): its message would reach the agent, which
+  // reads it aloud. It stays in the server's log.
   app.onError((err, c) => {
-    const status = err instanceof BrokerError ? err.status : 500;
-    return c.json({ error: err.message }, status as ContentfulStatusCode);
+    if (err instanceof BrokerError) {
+      return c.json({ error: err.message }, err.status as ContentfulStatusCode);
+    }
+    console.error("voice-broker :", err);
+    return c.json({ error: "erreur interne du relais" }, 500);
   });
 
   const authorize = async (c: Context) =>
