@@ -20,11 +20,12 @@ type Settings = ReturnType<typeof buildSettings>;
 const agent = (s: Settings) => s.agent;
 
 describe("configuration", () => {
-  it("defaults to multilingual Flux, gpt-5.4-mini and a French Flux voice", () => {
+  it("defaults to nova-3 in French, gpt-5.4-mini and a French Flux voice", () => {
     expect(deepgramConfigFromEnv({})).toEqual({
       apiKey: "",
-      listenModel: "flux-general-multi",
-      languageHints: ["fr", "en"],
+      listenModel: "nova-3",
+      languageHints: ["fr"],
+      keyterms: [],
       thinkProvider: "open_ai",
       thinkModel: "gpt-5.4-mini",
       thinkVersion: "ai-studio-v1beta",
@@ -36,11 +37,29 @@ describe("configuration", () => {
     expect(config({ DEEPGRAM_LANGUAGE_HINTS: " de , en ," }).languageHints).toEqual(["de", "en"]);
     expect(config({ DEEPGRAM_LANGUAGE_HINTS: " , " }).languageHints).toEqual(["fr"]);
   });
+
+  it("parses key terms, and sends them only when there are some", () => {
+    const withTerms = config({ DEEPGRAM_KEYTERMS: "MONŌKI, états ," });
+    expect(withTerms.keyterms).toEqual(["MONŌKI", "états"]);
+    expect(agent(buildSettings(withTerms, "p", TOOLS)).listen.provider.keyterms).toEqual([
+      "MONŌKI",
+      "états",
+    ]);
+    expect(agent(buildSettings(config(), "p", TOOLS)).listen.provider).not.toHaveProperty(
+      "keyterms",
+    );
+  });
 });
 
 describe("settings", () => {
   it("serves Flux models through v2, with hints for the multilingual model", () => {
-    const a = agent(buildSettings(config(), "p", TOOLS));
+    const a = agent(
+      buildSettings(
+        config({ DEEPGRAM_LISTEN_MODEL: "flux-general-multi", DEEPGRAM_LANGUAGE_HINTS: "fr,en" }),
+        "p",
+        TOOLS,
+      ),
+    );
     expect(a.listen.provider).toEqual({
       type: "deepgram",
       model: "flux-general-multi",

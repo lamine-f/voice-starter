@@ -250,6 +250,19 @@ describe("conversation states", () => {
     expect(t.session.state).toBe("listening");
   });
 
+  it("stops at once when the provider refuses the settings: retrying would send them again", async () => {
+    const t = await started();
+    t.link().events.rejected("INVALID_SETTINGS : modèle inconnu");
+    expect(t.session.state).toBe("idle");
+    expect(t.of("error").at(-1)).toEqual({
+      type: "error",
+      code: "provider",
+      message: "réglages refusés · INVALID_SETTINGS : modèle inconnu",
+      fatal: true,
+    });
+    expect(t.links).toHaveLength(1);
+  });
+
   it("relays transcripts and non-fatal provider errors", async () => {
     const t = await online();
     t.link().events.transcript("agent", "Bonjour, monsieur.");

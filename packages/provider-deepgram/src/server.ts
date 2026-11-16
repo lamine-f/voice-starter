@@ -18,7 +18,10 @@ const AUDIO = { inputRate: 16000, outputRate: 24000 } as const;
 export interface DeepgramConfig {
   apiKey: string;
   listenModel: string;
+  /** v1 models (nova-3…) listen in the first one; flux-general-multi takes them all as hints. */
   languageHints: string[];
+  /** Words to recognise despite their rarity: product names, jargon ("MONŌKI", "états"). */
+  keyterms: string[];
   thinkProvider: string;
   thinkModel: string;
   /** Only sent for Google models. */
@@ -26,15 +29,22 @@ export interface DeepgramConfig {
   speakModel: string;
 }
 
-export function deepgramConfigFromEnv(env: Record<string, string | undefined>): DeepgramConfig {
-  const hints = (env.DEEPGRAM_LANGUAGE_HINTS ?? "fr,en")
+const list = (value: string | undefined) =>
+  (value ?? "")
     .split(",")
-    .map((h) => h.trim())
+    .map((item) => item.trim())
     .filter(Boolean);
+
+export function deepgramConfigFromEnv(env: Record<string, string | undefined>): DeepgramConfig {
+  const hints = list(env.DEEPGRAM_LANGUAGE_HINTS);
   return {
     apiKey: env.DEEPGRAM_API_KEY ?? "",
-    listenModel: env.DEEPGRAM_LISTEN_MODEL ?? "flux-general-multi",
+    // Measured on short French questions: flux-general-multi, even hinted
+    // "fr", heard them as English ("Kawasaki Estate…" for « Qu'est-ce qui est
+    // en rupture… »); nova-3 in French got them right. Flux has no French model.
+    listenModel: env.DEEPGRAM_LISTEN_MODEL ?? "nova-3",
     languageHints: hints.length ? hints : ["fr"],
+    keyterms: list(env.DEEPGRAM_KEYTERMS),
     // Measured on real tool-calling sessions: never announces an action
     // without calling its tool (Gemini 2.5 Flash missed ~1 in 5), fast first reply.
     thinkProvider: env.DEEPGRAM_THINK_PROVIDER ?? "open_ai",
@@ -61,6 +71,8 @@ export function buildSettings(
   } else {
     Object.assign(listen, { version: "v1", language: config.languageHints[0] });
   }
+  // Accepted by nova-3 and flux-general-multi alike (checked on the live API).
+  if (config.keyterms.length) listen.keyterms = config.keyterms;
 
   const think: Record<string, unknown> = { type: config.thinkProvider, model: config.thinkModel };
   if (config.thinkProvider === "google") think.version = config.thinkVersion;

@@ -53,6 +53,7 @@ function connect(history: HistoryItem[] = []) {
     toolCancelled: vi.fn(),
     injectionRefused: vi.fn(),
     error: vi.fn(),
+    rejected: vi.fn(),
     closed: vi.fn(),
   } satisfies ProviderEvents;
   const provider = deepgramProvider({ WebSocket: FakeSocket as unknown as typeof WebSocket });
@@ -171,8 +172,20 @@ describe("deepgram connection", () => {
     expect(events.toolCancelled).toHaveBeenCalledWith("f1");
   });
 
+  it("reports refused settings once, and closes the socket Deepgram leaves open", () => {
+    const { socket, events } = connect();
+    socket.receive({ type: "Welcome" });
+    socket.receive({ type: "Error", code: "INVALID_SETTINGS", description: "modèle inconnu" });
+    expect(events.rejected).toHaveBeenCalledWith("INVALID_SETTINGS : modèle inconnu");
+    expect(events.error).not.toHaveBeenCalled();
+    expect(socket.closed).toBe(true);
+    socket.onclose?.({ code: 1000, reason: "" });
+    expect(events.closed).not.toHaveBeenCalled();
+  });
+
   it("explains a close with the Error that preceded it", () => {
     const { socket, events } = connect();
+    socket.receive({ type: "SettingsApplied" });
     socket.receive({ type: "Error", code: "CLIENT_MESSAGE_TIMEOUT", description: "trop long" });
     socket.onclose?.({ code: 1005, reason: "" });
     expect(events.error).toHaveBeenCalledWith("CLIENT_MESSAGE_TIMEOUT : trop long");

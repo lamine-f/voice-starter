@@ -58,6 +58,11 @@ export interface ProviderEvents {
   /** The agent was busy: the last injection was not taken. */
   injectionRefused(): void;
   error(message: string): void;
+  /**
+   * The provider refused the session settings (unknown model, bad field):
+   * reconnecting with the same settings cannot help.
+   */
+  rejected(message: string): void;
   /** The link ended without `close()` being called; `cause` says why. */
   closed(cause: string): void;
 }

@@ -296,6 +296,9 @@ class Session implements VoiceSession {
       error: (message) => {
         if (current()) this.#emit({ type: "error", code: "provider", message, fatal: false });
       },
+      rejected: (message) => {
+        if (current()) this.#fail("provider", `réglages refusés · ${message}`);
+      },
       closed: (cause) => {
         if (current()) this.#dropped(cause);
       },

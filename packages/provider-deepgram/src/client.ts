@@ -56,6 +56,7 @@ class DeepgramConnection implements ProviderConnection {
   readonly #socket: WebSocket;
   #closing = false;
   #lastError: string | null = null; // Deepgram explains itself in an Error, then closes
+  #applied = false; // Settings accepted: an Error before that is a refusal of them
 
   constructor(
     socket: WebSocket,
@@ -90,6 +91,7 @@ class DeepgramConnection implements ProviderConnection {
         break;
       case "SettingsApplied":
         this.#lastError = null;
+        this.#applied = true;
         events.ready();
         break;
       case "ConversationText":
@@ -129,6 +131,13 @@ class DeepgramConnection implements ProviderConnection {
         break;
       case "Error": {
         const message = [ev.code, ev.description].filter(Boolean).join(" : ") || "erreur Deepgram";
+        if (!this.#applied) {
+          // Refused settings: Deepgram keeps the socket open, the session
+          // would hang, and a reconnection would send the same settings.
+          events.rejected(message);
+          this.close();
+          break;
+        }
         this.#lastError = message;
         events.error(message);
         break;

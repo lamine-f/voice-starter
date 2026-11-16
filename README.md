@@ -108,6 +108,23 @@ button.onclick = () => session.dispatch({ type: "start", clientTools: ["show_car
 Si le relais déclare un outil client que l'hôte n'a pas listé dans
 `clientTools`, `start` échoue avec l'erreur `missing_tool_handlers`.
 
+## Réglages Deepgram
+
+`deepgramConfigFromEnv(process.env)` lit :
+
+| Variable | Défaut | Rôle |
+|---|---|---|
+| `DEEPGRAM_API_KEY` | *(requis)* | Clé du serveur, jamais envoyée au navigateur |
+| `DEEPGRAM_LISTEN_MODEL` | `nova-3` | Transcription. `flux-general-multi` entendait de l'anglais sur des phrases françaises courtes ; Flux n'a pas de modèle français |
+| `DEEPGRAM_LANGUAGE_HINTS` | `fr` | Langue d'écoute (la première ; `flux-general-multi` les prend toutes comme indices) |
+| `DEEPGRAM_KEYTERMS` | *(aucun)* | Mots rares à reconnaître : noms de produits, jargon |
+| `DEEPGRAM_THINK_PROVIDER` / `_MODEL` / `_VERSION` | `open_ai` / `gpt-5.4-mini` | Modèle de dialogue, hébergé et facturé par Deepgram : aucune autre clé |
+| `DEEPGRAM_SPEAK_MODEL` | `flux-thierry-fr` | Voix |
+
+Un réglage refusé par Deepgram (modèle inconnu…) arrête la session avec une
+erreur fatale `provider` (« réglages refusés · … ») : se reconnecter
+renverrait les mêmes réglages.
+
 ## Installer dans un autre projet
 
 Les paquets sont publics sur npm :
