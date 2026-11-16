@@ -131,6 +131,23 @@ describe("routes", () => {
     expect(notJson.status).toBe(400);
   });
 
+  it("refuse sessions and tools alike when authorize throws", async () => {
+    const guarded = brokerRoutes(broker, {
+      authorize: (c) => {
+        if (!c.req.header("x-user")) throw new BrokerError(401, "connexion requise");
+        return { user: c.req.header("x-user") ?? "" };
+      },
+    });
+    const call = (path: string, headers: Record<string, string> = {}) =>
+      guarded.request(path, { method: "POST", headers, body: JSON.stringify({ a: 1, b: 2 }) });
+    for (const path of ["/session", "/tools/add"]) {
+      const refused = await call(path);
+      expect(refused.status).toBe(401);
+      expect(await refused.json()).toEqual({ error: "connexion requise" });
+    }
+    expect((await call("/session", { "x-user": "web" })).status).toBe(200);
+  });
+
   it("are what httpBroker talks to", async () => {
     vi.stubGlobal("fetch", (url: string, init: RequestInit) =>
       app.request(url.replace("http://relay.test/voice", ""), init),

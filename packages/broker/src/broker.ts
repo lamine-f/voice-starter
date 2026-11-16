@@ -5,7 +5,7 @@
  * never chooses its prompt or its tools) and runs server tools with validated
  * arguments.
  */
-import type { SessionGrant, ToolDeclaration } from "@voice-starter/protocol";
+import type { SessionGrant, ToolDeclaration } from "@lamine-f/voice-protocol";
 import { z } from "zod";
 import { declaration, isServerTool, type ServerTool, type ToolSpec } from "./tools.ts";
 

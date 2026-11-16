@@ -9,13 +9,13 @@ JARVIS Local est le premier client de ce starter.
 
 ## Paquets
 
-| Paquet                             | Où il tourne                                 | Rôle                                                                                  |
-| ---------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `@voice-starter/protocol`          | partout                                      | Commandes, événements, états, déclarations d'outils, `SessionGrant`                   |
-| `@voice-starter/core`              | client                                       | La session : machine à états, reconnexion, historique, routage des outils, injections |
-| `@voice-starter/audio-web`         | navigateur                                   | Micro → PCM16 (AudioWorklet) et lecture enchaînée                                     |
-| `@voice-starter/provider-deepgram` | `/client` : navigateur · `/server` : serveur | Adaptateur Deepgram Voice Agent, réglages de session et jetons temporaires            |
-| `@voice-starter/broker`            | `.` : serveur · `/client` : navigateur       | Registre d'outils (Zod), relais, routes Hono, client HTTP                             |
+| Paquet                              | Où il tourne                                 | Rôle                                                                                  |
+| ----------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `@lamine-f/voice-protocol`          | partout                                      | Commandes, événements, états, déclarations d'outils, `SessionGrant`                   |
+| `@lamine-f/voice-core`              | client                                       | La session : machine à états, reconnexion, historique, routage des outils, injections |
+| `@lamine-f/voice-audio-web`         | navigateur                                   | Micro → PCM16 (AudioWorklet) et lecture enchaînée                                     |
+| `@lamine-f/voice-provider-deepgram` | `/client` : navigateur · `/server` : serveur | Adaptateur Deepgram Voice Agent, réglages de session et jetons temporaires            |
+| `@lamine-f/voice-broker`            | `.` : serveur · `/client` : navigateur       | Registre d'outils (Zod), relais, routes Hono, client HTTP                             |
 
 ## Principe
 
@@ -31,15 +31,15 @@ Interface ──commandes──▶ Cœur ──▶ AudioInput / AudioOutput
   frontières, `toWire` / `fromWire` ajoutent et vérifient la version.
 - Chaque outil est déclaré **une fois**, avec son schéma Zod et l'endroit où
   il s'exécute (`client` : l'hôte, `server` : le relais). Utiliser le `z`
-  exporté par `@voice-starter/broker`, celui qui produit les JSON Schema.
+  exporté par `@lamine-f/voice-broker`, celui qui produit les JSON Schema.
 
 ## Exemple
 
 **Serveur** (Node, Hono) :
 
 ```ts
-import { brokerRoutes, createBroker, implement, tool, z } from "@voice-starter/broker";
-import { deepgramBackend, deepgramConfigFromEnv } from "@voice-starter/provider-deepgram/server";
+import { brokerRoutes, createBroker, implement, tool, z } from "@lamine-f/voice-broker";
+import { deepgramBackend, deepgramConfigFromEnv } from "@lamine-f/voice-provider-deepgram/server";
 import { Hono } from "hono";
 
 const showCard = tool({
@@ -69,10 +69,10 @@ app.route("/voice", brokerRoutes(broker));
 **Navigateur** :
 
 ```ts
-import { WebAudioInput, WebAudioOutput } from "@voice-starter/audio-web";
-import { httpBroker } from "@voice-starter/broker/client";
-import { createVoiceSession } from "@voice-starter/core";
-import { deepgramProvider } from "@voice-starter/provider-deepgram/client";
+import { WebAudioInput, WebAudioOutput } from "@lamine-f/voice-audio-web";
+import { httpBroker } from "@lamine-f/voice-broker/client";
+import { createVoiceSession } from "@lamine-f/voice-core";
+import { deepgramProvider } from "@lamine-f/voice-provider-deepgram/client";
 
 const session = createVoiceSession({
   broker: httpBroker("/voice"),
@@ -94,6 +94,34 @@ button.onclick = () => session.dispatch({ type: "start", clientTools: ["show_car
 
 Si le relais déclare un outil client que l'hôte n'a pas listé dans
 `clientTools`, `start` échoue avec l'erreur `missing_tool_handlers`.
+
+## Installer dans un autre projet
+
+Les paquets sont publiés sur GitHub Packages. Le registre demande un jeton,
+même pour lire : un jeton GitHub avec le droit `read:packages`, dans
+`NPM_TOKEN` (en local comme chez l'hébergeur, Vercel par exemple). Dans le
+`.npmrc` du projet :
+
+```
+@lamine-f:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NPM_TOKEN}
+```
+
+puis `pnpm add @lamine-f/voice-core @lamine-f/voice-audio-web
+@lamine-f/voice-broker @lamine-f/voice-provider-deepgram`.
+
+Le relais ne tient aucune connexion ouverte : le navigateur parle directement
+au fournisseur avec un jeton temporaire, le serveur ne répond qu'à deux appels
+HTTP courts. Il tourne donc aussi sur des fonctions sans état (Vercel,
+Cloudflare) : `brokerRoutes(...).fetch` se branche dans un route handler.
+`authorize` y protège les deux routes, l'ouverture de session comprise.
+
+## Publier
+
+`pnpm build`, puis `pnpm -r publish` avec un jeton qui a le droit
+`write:packages` (`gh auth refresh -s write:packages`, puis
+`NPM_TOKEN=$(gh auth token)`). pnpm remplace les dépendances `workspace:*`
+par leur version.
 
 ## Développement
 

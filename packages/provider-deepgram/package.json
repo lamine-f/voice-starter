@@ -1,5 +1,5 @@
 {
-  "name": "@voice-starter/provider-deepgram",
+  "name": "@lamine-f/voice-provider-deepgram",
   "version": "0.1.0",
   "description": "Adaptateur Deepgram Voice Agent : connexion navigateur et réglages serveur.",
   "license": "MIT",
@@ -17,11 +17,20 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "dependencies": {
-    "@voice-starter/core": "workspace:*",
-    "@voice-starter/protocol": "workspace:*",
-    "@voice-starter/broker": "workspace:*"
+    "@lamine-f/voice-core": "workspace:*",
+    "@lamine-f/voice-protocol": "workspace:*",
+    "@lamine-f/voice-broker": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lamine-f/voice-starter.git",
+    "directory": "packages/provider-deepgram"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }

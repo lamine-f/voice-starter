@@ -1,5 +1,5 @@
 {
-  "name": "@voice-starter/protocol",
+  "name": "@lamine-f/voice-protocol",
   "version": "0.1.0",
   "description": "Contrats partagés : messages du protocole, session, outils.",
   "license": "MIT",
@@ -12,6 +12,15 @@
     }
   },
   "files": [
-    "dist"
-  ]
+    "dist",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lamine-f/voice-starter.git",
+    "directory": "packages/protocol"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
 }

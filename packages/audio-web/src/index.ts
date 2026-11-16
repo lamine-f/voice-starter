@@ -5,7 +5,7 @@
  * Browsers only run audio after a user gesture: call the session's `start`
  * from a click handler.
  */
-import type { AudioInput, AudioOutput, Pcm16 } from "@voice-starter/core";
+import type { AudioInput, AudioOutput, Pcm16 } from "@lamine-f/voice-core";
 
 const CAPTURE_PROCESSOR = "pcm16-capture";
 

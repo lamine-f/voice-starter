@@ -6,7 +6,7 @@
  * agent actually sent. Declarations carry no handler, so a browser bundle can
  * import their types without pulling server code.
  */
-import type { JsonSchema, ToolDeclaration, ToolLocation } from "@voice-starter/protocol";
+import type { JsonSchema, ToolDeclaration, ToolLocation } from "@lamine-f/voice-protocol";
 import { z } from "zod";
 
 export interface ToolSpec<P extends z.ZodObject = z.ZodObject> {

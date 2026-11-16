@@ -1,5 +1,5 @@
-import { BrokerError } from "@voice-starter/broker";
-import type { ToolDeclaration } from "@voice-starter/protocol";
+import { BrokerError } from "@lamine-f/voice-broker";
+import type { ToolDeclaration } from "@lamine-f/voice-protocol";
 import { describe, expect, it } from "vitest";
 import {
   AGENT_URL,

@@ -12,8 +12,8 @@ import type {
   ProviderEvents,
   ProviderToolCall,
   VoiceProvider,
-} from "@voice-starter/core";
-import type { HistoryItem } from "@voice-starter/protocol";
+} from "@lamine-f/voice-core";
+import type { HistoryItem } from "@lamine-f/voice-protocol";
 
 type DeepgramEvent = { type: string; [key: string]: unknown };
 

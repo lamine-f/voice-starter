@@ -1,5 +1,5 @@
-import type { ProviderEvents } from "@voice-starter/core";
-import type { HistoryItem, SessionGrant } from "@voice-starter/protocol";
+import type { ProviderEvents } from "@lamine-f/voice-core";
+import type { HistoryItem, SessionGrant } from "@lamine-f/voice-protocol";
 import { describe, expect, it, vi } from "vitest";
 import { deepgramProvider } from "../src/client.ts";
 

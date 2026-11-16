@@ -1,5 +1,5 @@
 {
-  "name": "@voice-starter/core",
+  "name": "@lamine-f/voice-core",
   "version": "0.1.0",
   "description": "Le cœur vocal sans interface : états, reconnexion, historique, outils.",
   "license": "MIT",
@@ -12,9 +12,18 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "dependencies": {
-    "@voice-starter/protocol": "workspace:*"
+    "@lamine-f/voice-protocol": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lamine-f/voice-starter.git",
+    "directory": "packages/core"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }

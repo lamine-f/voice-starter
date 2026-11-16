@@ -5,7 +5,7 @@
  * the state machine, reconnection with the conversation replayed, routing of
  * tool calls (client tools to the host, server tools to the relay) and the
  * queue of injected messages. A host drives it with commands and listens to
- * its events (see @voice-starter/protocol).
+ * its events (see @lamine-f/voice-protocol).
  */
 import type {
   Command,
@@ -15,7 +15,7 @@ import type {
   SessionState,
   ToolDeclaration,
   VoiceEvent,
-} from "@voice-starter/protocol";
+} from "@lamine-f/voice-protocol";
 import type {
   AudioInput,
   AudioOutput,

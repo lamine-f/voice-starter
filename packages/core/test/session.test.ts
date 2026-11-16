@@ -1,4 +1,4 @@
-import type { HistoryItem, SessionGrant, VoiceEvent } from "@voice-starter/protocol";
+import type { HistoryItem, SessionGrant, VoiceEvent } from "@lamine-f/voice-protocol";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   type AudioInput,

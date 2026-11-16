@@ -5,8 +5,8 @@
  * through the relay. Deepgram chains three stages: `listen` (speech-to-text),
  * `think` (the LLM that converses and calls tools) and `speak` (text-to-speech).
  */
-import { BrokerError, type ProviderBackend } from "@voice-starter/broker";
-import type { ToolDeclaration } from "@voice-starter/protocol";
+import { BrokerError, type ProviderBackend } from "@lamine-f/voice-broker";
+import type { ToolDeclaration } from "@lamine-f/voice-protocol";
 
 export const AGENT_URL = "wss://agent.deepgram.com/v1/agent/converse";
 const GRANT_URL = "https://api.deepgram.com/v1/auth/grant";
@@ -35,8 +35,8 @@ export function deepgramConfigFromEnv(env: Record<string, string | undefined>): 
     apiKey: env.DEEPGRAM_API_KEY ?? "",
     listenModel: env.DEEPGRAM_LISTEN_MODEL ?? "flux-general-multi",
     languageHints: hints.length ? hints : ["fr"],
-    // Measured on JARVIS's tool calls: never announces a task without
-    // launching it (Gemini 2.5 Flash missed ~1 in 5), fast first reply.
+    // Measured on real tool-calling sessions: never announces an action
+    // without calling its tool (Gemini 2.5 Flash missed ~1 in 5), fast first reply.
     thinkProvider: env.DEEPGRAM_THINK_PROVIDER ?? "open_ai",
     thinkModel: env.DEEPGRAM_THINK_MODEL ?? "gpt-5.4-mini",
     thinkVersion: env.DEEPGRAM_THINK_VERSION ?? "ai-studio-v1beta",

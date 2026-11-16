@@ -4,14 +4,19 @@
  *   POST /session       → SessionGrant
  *   POST /tools/:name   → the server tool's result (body: its arguments)
  *
- * Mount it behind the host's own access control; `authorize` turns a request
- * into the context server tools receive (the signed-in user, for instance).
+ * `authorize` guards both: a session spends the provider's credit as surely
+ * as a tool reaches the host's data.
  */
 import { type Context, Hono } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { type Broker, BrokerError } from "./broker.ts";
 
 export interface BrokerRoutesOptions<Ctx> {
+  /**
+   * Runs before every route. Throw to refuse (a BrokerError carries its
+   * status: 401, 403…); the value returned is the context server tools
+   * receive (the signed-in user, for instance).
+   */
   authorize?: (c: Context) => Ctx | Promise<Ctx>;
 }
 
@@ -26,10 +31,16 @@ export function brokerRoutes<Ctx = void>(
     return c.json({ error: err.message }, status as ContentfulStatusCode);
   });
 
-  app.post("/session", async (c) => c.json(await broker.openSession()));
+  const authorize = async (c: Context) =>
+    (options.authorize ? await options.authorize(c) : undefined) as Ctx;
+
+  app.post("/session", async (c) => {
+    await authorize(c);
+    return c.json(await broker.openSession());
+  });
 
   app.post("/tools/:name", async (c) => {
-    const ctx = (options.authorize ? await options.authorize(c) : undefined) as Ctx;
+    const ctx = await authorize(c);
     const args: unknown = await c.req.json().catch(() => {
       throw new BrokerError(400, "corps JSON invalide");
     });

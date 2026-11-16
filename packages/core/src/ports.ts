@@ -3,7 +3,7 @@
  * the DOM, the system or the provider key: whatever differs between a browser,
  * a desktop app or a phone lives behind these interfaces.
  */
-import type { HistoryItem, Role, SessionGrant } from "@voice-starter/protocol";
+import type { HistoryItem, Role, SessionGrant } from "@lamine-f/voice-protocol";
 
 /** 16-bit mono PCM, on a plain (transferable) buffer. */
 export type Pcm16 = Int16Array<ArrayBuffer>;

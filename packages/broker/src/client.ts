@@ -2,7 +2,7 @@
  * Browser side of the relay: the core's SessionBroker port over HTTP.
  * Depends on nothing but `fetch`, so it bundles small.
  */
-import type { SessionGrant } from "@voice-starter/protocol";
+import type { SessionGrant } from "@lamine-f/voice-protocol";
 
 export interface HttpBrokerOptions {
   /** Sent with every request: the host's own credentials (token, CSRF header…). */

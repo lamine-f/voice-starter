@@ -23,13 +23,13 @@ importers:
 
   packages/audio-web:
     dependencies:
-      '@voice-starter/core':
+      '@lamine-f/voice-core':
         specifier: workspace:*
         version: link:../core
 
   packages/broker:
     dependencies:
-      '@voice-starter/protocol':
+      '@lamine-f/voice-protocol':
         specifier: workspace:*
         version: link:../protocol
       hono:
@@ -41,7 +41,7 @@ importers:
 
   packages/core:
     dependencies:
-      '@voice-starter/protocol':
+      '@lamine-f/voice-protocol':
         specifier: workspace:*
         version: link:../protocol
 
@@ -49,13 +49,13 @@ importers:
 
   packages/provider-deepgram:
     dependencies:
-      '@voice-starter/broker':
+      '@lamine-f/voice-broker':
         specifier: workspace:*
         version: link:../broker
-      '@voice-starter/core':
+      '@lamine-f/voice-core':
         specifier: workspace:*
         version: link:../core
-      '@voice-starter/protocol':
+      '@lamine-f/voice-protocol':
         specifier: workspace:*
         version: link:../protocol
 
