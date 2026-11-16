@@ -1,0 +1,27 @@
+{
+  "name": "@voice-starter/broker",
+  "version": "0.1.0",
+  "description": "Serveur relais : jetons temporaires, réglages et registre d'outils.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./client": {
+      "source": "./src/client.ts",
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@voice-starter/protocol": "workspace:*",
+    "hono": "^4.13.18",
+    "zod": "^4.6.7"
+  }
+}
