@@ -273,6 +273,7 @@ describe("tools", () => {
       { call: call("c1", "show", { title: "Hi" }), result: { status: "displayed" } },
     ]);
     expect(t.of("toolActivity").map((e) => e.status)).toEqual(["started", "done"]);
+    expect(t.of("toolActivity")[0]).toMatchObject({ status: "started", args: { title: "Hi" } });
   });
 
   it("runs server tools through the relay", async () => {

@@ -310,13 +310,19 @@ class Session implements VoiceSession {
 
   async #runTool(link: Link, call: ProviderToolCall): Promise<void> {
     const { id: callId, name } = call;
-    this.#emit({ type: "toolActivity", callId, name, status: "started" });
+    let args: unknown;
+    try {
+      args = call.arguments ? JSON.parse(call.arguments) : {};
+    } catch {
+      args = undefined; // reported as the call's error below
+    }
+    this.#emit({ type: "toolActivity", callId, name, status: "started", args });
     let result: unknown;
     let status: "done" | "error" = "done";
     try {
       const tool = this.#tools.get(name);
       if (!tool) throw new Error(`outil inconnu : ${name}`);
-      const args: unknown = call.arguments ? JSON.parse(call.arguments) : {};
+      if (args === undefined) throw new Error(`arguments illisibles pour ${name}`);
       result =
         tool.runsOn === "server"
           ? await this.#ports.broker.callTool(name, args)

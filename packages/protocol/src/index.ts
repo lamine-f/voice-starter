@@ -89,12 +89,17 @@ export type VoiceEvent =
   | { type: "toolCall"; callId: string; name: string; args: unknown }
   /** The agent abandoned the call: do not answer it, undo what it started (its `toolActivity` still comes). */
   | { type: "toolCancelled"; callId: string }
-  /** Progress of any tool, client or server. `result` comes with `done` and `error`. */
+  /**
+   * Progress of any tool, client or server, so the host can show what the
+   * agent is doing. `args` comes with `started` (absent when the agent sent
+   * unreadable JSON), `result` with `done` and `error`.
+   */
   | {
       type: "toolActivity";
       callId: string;
       name: string;
       status: "started" | "done" | "error";
+      args?: unknown;
       result?: unknown;
     }
   /** `fatal`: the session is over and back to `idle`. */
